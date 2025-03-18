@@ -1,9 +1,11 @@
+require('dotenv').config();
+console.log("Starting up")
+
 // Discord Bot that commits blog posts to GitHub
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Octokit } = require('octokit');
 const moment = require('moment');
 const slugify = require('slugify');
-require('dotenv').config();
 
 // Initialize Discord client
 const client = new Client({
@@ -76,10 +78,10 @@ client.on('messageCreate', async (message) => {
       // Commit to GitHub
       const result = await commitToGitHub(filename, fileContent);
 
-      message.reply(`🎉 Published to blog! Your post will be live after the build completes.\nCommit: ${result.commitUrl}`);
+      message.reply(`🎉 ${result.commitUrl}`);
     } catch (error) {
       console.error('Error publishing to GitHub:', error);
-      message.reply('Failed to publish to blog. Please try again later.');
+      await message.reply('Error: '+error);
     }
   }
 });
@@ -169,7 +171,7 @@ async function commitToGitHub(filename, content) {
     };
   } catch (error) {
     console.error('GitHub API Error:', error);
-    throw new Error('Failed to commit to GitHub');
+    throw error;
   }
 }
 

@@ -6,3 +6,4 @@ thought-blog/node_modules
 dist
 .env
 .env.*
+.aider*
