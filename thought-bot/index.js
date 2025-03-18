@@ -115,7 +115,7 @@ async function commitToGitHub(filename, content) {
     const ref = await octokit.rest.git.getRef({
       owner: config.githubOwner,
       repo: config.githubRepo,
-      ref: 'heads/main',
+      ref: 'heads/master',
     });
 
     // Create a blob with the file content
@@ -161,7 +161,7 @@ async function commitToGitHub(filename, content) {
     await octokit.rest.git.updateRef({
       owner: config.githubOwner,
       repo: config.githubRepo,
-      ref: 'heads/main',
+      ref: 'heads/master',
       sha: newCommit.data.sha,
     });
 
