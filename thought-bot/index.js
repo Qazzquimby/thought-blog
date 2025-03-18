@@ -64,32 +64,9 @@ client.on('messageCreate', async (message) => {
       }
     }
 
-    // Handle images if any are attached
-    const images = [];
-    if (message.attachments.size > 0) {
-      await message.reply("Processing attachments...");
-
-      for (const [id, attachment] of message.attachments) {
-        try {
-          // For a real implementation, you'd need to:
-          // 1. Download the image
-          // 2. Upload it to your GitHub repo
-          // 3. Get the URL or path
-          // This is simplified for illustration
-          images.push({
-            id: id,
-            url: attachment.url,
-            filename: attachment.name
-          });
-        } catch (error) {
-          console.error('Error processing attachment:', error);
-        }
-      }
-    }
-
     try {
       // Create the Markdown content with frontmatter
-      const fileContent = createMarkdownContent(title, message.author.username, tags, content, images);
+      const fileContent = createMarkdownContent(title, message.author.username, tags, content);
 
       // Create filename based on date and title
       const date = moment().format('YYYY-MM-DD');
@@ -108,7 +85,7 @@ client.on('messageCreate', async (message) => {
 });
 
 // Function to create Markdown content with frontmatter
-function createMarkdownContent(title, author, tags, content, images) {
+function createMarkdownContent(title, author, tags, content) {
   const date = moment().format('YYYY-MM-DD HH:mm:ss');
 
   // Create frontmatter
@@ -124,21 +101,9 @@ ${tags.map(tag => `  - "${tag}"`).join('\n')}
 `;
   }
 
-  if (images.length > 0) {
-    frontmatter += `images:
-${images.map(img => `  - "${img.filename}"`).join('\n')}
-`;
-  }
-
   frontmatter += `---\n\n`;
 
-  // Add image markdown if there are images
-  let imageMarkdown = '';
-  if (images.length > 0) {
-    imageMarkdown = images.map(img => `![${img.filename}](/images/${img.filename})`).join('\n\n') + '\n\n';
-  }
-
-  return frontmatter + imageMarkdown + content;
+  return frontmatter + content;
 }
 
 // Function to commit content to GitHub
