@@ -43,32 +43,22 @@ client.on('messageCreate', async (message) => {
 
   // Check for command prefix to publish (!blog)
   if (message.content.startsWith('!blog')) {
-    // Extract parts: !blog Title of the post | Tags: tag1, tag2 | Content goes here...
-    const messageParts = message.content.slice(6).trim().split('|');
+    // Extract content: !blog Content goes here...
+    const content = message.content.slice(6).trim();
 
-    if (messageParts.length < 1) {
-      message.reply('Please provide at least a title for your blog post. Format: `!blog Title | Tags: tag1, tag2 | Content`');
+    if (!content) {
+      await message.reply("You've got to say something. Format: `!blog Your content here...`");
       return;
     }
 
-    // Parse the message parts
-    const title = messageParts[0].trim();
-    let tags = [];
-    let content = '';
-
-    if (messageParts.length >= 2) {
-      // Check if second part contains tags
-      if (messageParts[1].trim().toLowerCase().startsWith('tags:')) {
-        tags = messageParts[1].replace(/tags:/i, '').split(',').map(tag => tag.trim());
-        content = messageParts.slice(2).join('|').trim();
-      } else {
-        content = messageParts.slice(1).join('|').trim();
-      }
-    }
+    const numWordsInTitle = 15
+    // Generate title from first 5 words
+    const title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
+                 (content.split(' ').length > numWordsInTitle ? '...' : '');
 
     try {
       // Create the Markdown content with frontmatter
-      const fileContent = createMarkdownContent(title, message.author.username, tags, content);
+      const fileContent = createMarkdownContent(title, message.author.username, [], content);
 
       // Create filename based on date and title
       const date = moment().format('YYYY-MM-DD');
@@ -78,7 +68,7 @@ client.on('messageCreate', async (message) => {
       // Commit to GitHub
       const result = await commitToGitHub(filename, fileContent);
 
-      message.reply(`🎉 ${result.commitUrl}`);
+      await message.reply(`🎉 ${result.commitUrl}`);
     } catch (error) {
       console.error('Error publishing to GitHub:', error);
       await message.reply('Error: '+error);
