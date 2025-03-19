@@ -2,7 +2,7 @@
   <div class="layout">
     <header class="header">
       <strong class="site-title">
-        <g-link to="/">{{ $static.metadata.siteName }}</g-link>
+        <g-link to="/">Murmuring into the void</g-link>
       </strong>
 <!--      <nav class="nav">-->
 <!--        <g-link class="nav__link" to="/">Home</g-link>-->
@@ -55,7 +55,7 @@ body {
 }
 
 .site-title a {
-  color: var(--text-color);
+  color: #463b67;
   text-decoration: none;
   font-weight: bold;
 }
