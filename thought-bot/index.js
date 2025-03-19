@@ -27,7 +27,7 @@ const config = {
   channelId: process.env.CHANNEL_ID,
   githubOwner: process.env.GITHUB_OWNER,
   githubRepo: process.env.GITHUB_REPO,
-  contentPath: 'thoughts-blog/content/posts', // Where posts are stored in your Gridsome repo
+  contentPath: 'thought-blog/content/posts', // Where posts are stored in your Gridsome repo
 };
 
 // Event: Bot is ready
@@ -68,10 +68,18 @@ client.on('messageCreate', async (message) => {
       // Commit to GitHub
       const result = await commitToGitHub(filename, fileContent);
 
-      await message.reply(`🎉 ${result.commitUrl}`);
+      // React with a success emoji instead of replying
+      await message.react('🎉');
+      
+      // Optional: DM the user with the commit URL to avoid channel spam
+      await message.author.send(`Blog post published successfully: ${result.commitUrl}`);
     } catch (error) {
       console.error('Error publishing to GitHub:', error);
-      await message.reply('Error: '+error);
+      console.error('Error publishing to GitHub:', error);
+      // React with error emoji
+      await message.react('❌');
+      // DM the error details to avoid channel spam
+      await message.author.send(`Error publishing blog post: ${error}`);
     }
   }
 });
