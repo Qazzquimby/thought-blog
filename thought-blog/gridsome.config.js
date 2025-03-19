@@ -8,7 +8,7 @@
 // Learn more: https://gridsome.org/docs/config
 
 module.exports = {
-  siteName: 'Thoughts Blog',
+  siteName: 'thoughts',
   siteDescription: 'Muttering into the Void',
 
   templates: {
