@@ -27,7 +27,7 @@ const config = {
   channelId: process.env.CHANNEL_ID,
   githubOwner: process.env.GITHUB_OWNER,
   githubRepo: process.env.GITHUB_REPO,
-  contentPath: 'content/posts', // Where posts are stored in your Gridsome repo
+  contentPath: 'thoughts-blog/content/posts', // Where posts are stored in your Gridsome repo
 };
 
 // Event: Bot is ready
