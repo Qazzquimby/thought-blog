@@ -13,7 +13,9 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-  ]
+    GatewayIntentBits.GuildMessageReactions,
+  ],
+  partials: ['MESSAGE', 'CHANNEL', 'REACTION'], // Needed to detect reactions to older messages
 });
 
 // Initialize GitHub client
@@ -41,13 +43,18 @@ client.on('messageCreate', async (message) => {
   // Ignore bot messages and messages from other channels
   if (message.author.bot || message.channelId !== config.channelId) return;
 
-  // Check for command prefix to publish (!blog)
-  if (message.content.startsWith('!blog')) {
-    // Extract content: !blog Content goes here...
-    const content = message.content.slice(6).trim();
+  // Check for command prefix to publish (!blog) or thought_balloon emoji
+  if (message.content.startsWith('!blog') || message.content.includes('💭')) {
+    // Extract content based on the trigger
+    let content;
+    if (message.content.startsWith('!blog')) {
+      content = message.content.slice(6).trim();
+    } else {
+      content = message.content;
+    }
 
     if (!content) {
-      await message.reply("You've got to say something. Format: `!blog Your content here...`");
+      await message.reply("You've got to say something.");
       return;
     }
 
@@ -173,5 +180,61 @@ async function commitToGitHub(filename, content) {
   }
 }
 
-// Login to Discord
+// Event: Reaction added
+client.on('messageReactionAdd', async (reaction, user) => {
+  try {
+    // Ignore reactions from bots and reactions in other channels
+    if (user.bot || reaction.message.channelId !== config.channelId) return;
+    
+    // Check if the reaction is a thought_balloon emoji
+    if (reaction.emoji.name === '💭') {
+      // Fetch the message if it's a partial
+      if (reaction.partial) {
+        await reaction.fetch();
+      }
+      
+      // Fetch the full message to get its content
+      const message = await reaction.message.fetch();
+      
+      // Ignore if the message is from a bot or has no content
+      if (message.author.bot || !message.content) return;
+      
+      const content = message.content;
+      
+      // Generate title from first 15 words
+      const numWordsInTitle = 15;
+      const title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
+                   (content.split(' ').length > numWordsInTitle ? '...' : '');
+
+      try {
+        // Create the Markdown content with frontmatter
+        const fileContent = createMarkdownContent(title, message.author.username, [], content);
+
+        // Create filename based on date and title
+        const date = moment().format('YYYY-MM-DD');
+        const slug = slugify(title, { lower: true, strict: true });
+        const filename = `${date}-${slug}.md`;
+
+        // Commit to GitHub
+        const result = await commitToGitHub(filename, fileContent);
+
+        // React with a success emoji
+        await message.react('🎉');
+        
+        // Optional: DM the user with the commit URL to avoid channel spam
+        await message.author.send(`Blog post published successfully: ${result.commitUrl}`);
+      } catch (error) {
+        console.error('Error publishing to GitHub:', error);
+        // React with error emoji
+        await message.react('❌');
+        // DM the error details to avoid channel spam
+        await message.author.send(`Error publishing blog post: ${error}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error handling reaction:', error);
+  }
+});
+
+// Login to Discord with partials enabled for reactions
 client.login(config.discordToken);
