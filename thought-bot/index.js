@@ -94,12 +94,16 @@ client.on('messageCreate', async (message) => {
 // Function to create Markdown content with frontmatter
 function createMarkdownContent(title, author, tags, content) {
   const date = moment().format('YYYY-MM-DD HH:mm:ss');
+  
+  // Escape quotes in title and author for YAML
+  const escapedTitle = title.replace(/"/g, '\\"');
+  const escapedAuthor = author.replace(/"/g, '\\"');
 
   // Create frontmatter
   let frontmatter = `---
-title: "${title}"
+title: "${escapedTitle}"
 date: ${date}
-author: "${author}"
+author: "${escapedAuthor}"
 `;
 
   if (tags.length > 0) {

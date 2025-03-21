@@ -1,5 +1,5 @@
 ---
-title: "💭 llm playing rpg remembers "I used timestop today". Seems reasonable but now it must..."
+title: "💭 llm playing rpg remembers 'I used timestop today'. Seems reasonable but now it must..."
 date: 2025-03-20 21:39:21
 author: "qazzquimby"
 ---
