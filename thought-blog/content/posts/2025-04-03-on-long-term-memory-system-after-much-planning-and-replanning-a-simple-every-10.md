@@ -1,5 +1,5 @@
 ---
-title: "💭 on long term memory system, after much planning and replanning, a simple "every 10..."
+title: "💭 on long term memory system, after much planning and replanning, a simple 'every 10...'"
 date: 2025-04-03 04:01:33
 author: "qazzquimby"
 ---
