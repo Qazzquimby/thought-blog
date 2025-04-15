@@ -53,9 +53,11 @@ client.on('messageCreate', async (message) => {
       return;
     }
 
-    const numWordsInTitle = 15
-    const title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
-                 (content.split(' ').length > numWordsInTitle ? '...' : '');
+    const numWordsInTitle = 15;
+    let title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
+                (content.split(' ').length > numWordsInTitle ? '...' : '');
+    // Remove quotes and other problematic characters
+    title = title.replace(/["'`]/g, '').replace(/[^\w\s-]/g, ' ').trim();
 
     try {
       // Create the Markdown content with frontmatter
@@ -195,8 +197,10 @@ client.on('messageReactionAdd', async (reaction, user) => {
       
       // Generate title from first 15 words
       const numWordsInTitle = 15;
-      const title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
-                   (content.split(' ').length > numWordsInTitle ? '...' : '');
+      let title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
+                  (content.split(' ').length > numWordsInTitle ? '...' : '');
+      // Remove quotes and other problematic characters
+      title = title.replace(/["'`]/g, '').replace(/[^\w\s-]/g, ' ').trim();
 
       try {
         // Create the Markdown content with frontmatter
