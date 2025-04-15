@@ -38,14 +38,14 @@ client.once('ready', () => {
   console.log(`Monitoring channel: ${config.channelId}`);
 });
 
+const QAZZ_NAME = "qazzquimby"
+const BARLO_NAME = "junglejimbo"
+
 // Event: Message received
 client.on('messageCreate', async (message) => {
-  // Ignore bot messages and messages from other channels
   if (message.author.bot || message.channelId !== config.channelId) return;
 
-  // Check for command prefix to publish (!blog) or thought_balloon emoji
-  if (message.content.includes('💭')) {
-    // Extract content based on the trigger
+  if (message.content.includes('💭') || message.content.includes('🧿')) {
     const content = message.content;
 
     if (!content) {
