@@ -44,14 +44,9 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot || message.channelId !== config.channelId) return;
 
   // Check for command prefix to publish (!blog) or thought_balloon emoji
-  if (message.content.startsWith('!blog') || message.content.includes('💭')) {
+  if (message.content.includes('💭')) {
     // Extract content based on the trigger
-    let content;
-    if (message.content.startsWith('!blog')) {
-      content = message.content.slice(6).trim();
-    } else {
-      content = message.content;
-    }
+    const content = message.content;
 
     if (!content) {
       await message.reply("You've got to say something.");
@@ -59,7 +54,6 @@ client.on('messageCreate', async (message) => {
     }
 
     const numWordsInTitle = 15
-    // Generate title from first 5 words
     const title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
                  (content.split(' ').length > numWordsInTitle ? '...' : '');
 
@@ -72,20 +66,12 @@ client.on('messageCreate', async (message) => {
       const slug = slugify(title, { lower: true, strict: true });
       const filename = `${date}-${slug}.md`;
 
-      // Commit to GitHub
       const result = await commitToGitHub(filename, fileContent);
 
-      // React with a success emoji instead of replying
       await message.react('🎉');
-      
-      // Optional: DM the user with the commit URL to avoid channel spam
-      await message.author.send(`Blog post published successfully: ${result.commitUrl}`);
     } catch (error) {
       console.error('Error publishing to GitHub:', error);
-      console.error('Error publishing to GitHub:', error);
-      // React with error emoji
       await message.react('❌');
-      // DM the error details to avoid channel spam
       await message.author.send(`Error publishing blog post: ${error}`);
     }
   }
