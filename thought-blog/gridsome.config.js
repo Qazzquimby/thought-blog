@@ -28,6 +28,19 @@ module.exports = {
           }
         }
       }
+    },
+    {
+      use: '@gridsome/source-filesystem',
+      options: {
+        typeName: 'BarloPost',
+        path: './content/posts/barlo/*.md',
+        refs: {
+          tags: {
+            typeName: 'Tag',
+            create: true
+          }
+        }
+      }
     }
   ],
 

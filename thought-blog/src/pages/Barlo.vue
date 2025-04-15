@@ -22,7 +22,7 @@
 
 <page-query>
 query {
-  posts: allPost(filter: {author: {eq: "junglejimbo"}}, sortBy: "date", order: DESC) {
+  posts: allBarloPost(sortBy: "date", order: DESC) {
     edges {
       node {
         id

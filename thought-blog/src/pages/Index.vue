@@ -22,7 +22,7 @@
 
 <page-query>
 query {
-  posts: allPost(filter: {author: {eq: "qazzquimby"}}, sortBy: "date", order: DESC) {
+  posts: allPost(sortBy: "date", order: DESC) {
     edges {
       node {
         id
