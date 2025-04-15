@@ -1,5 +1,5 @@
 ---
-title: "💭 when explaining my interests it usually comes off like "so games basically" and then..."
+title: "💭 when explaining my interests it usually comes off like 'so games basically' and then..."
 date: 2025-04-15 02:28:14
 author: "qazzquimby"
 ---

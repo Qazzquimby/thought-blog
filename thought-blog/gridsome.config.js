@@ -12,7 +12,8 @@ module.exports = {
   siteDescription: 'Muttering into the Void',
 
   templates: {
-    Post: '/blog/:slug',
+    Post: '/blog/:fileInfo__name',
+    BarloPost: '/barlo/:fileInfo__name'
   },
 
   plugins: [
