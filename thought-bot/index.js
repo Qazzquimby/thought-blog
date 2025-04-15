@@ -29,7 +29,7 @@ const config = {
   channelId: process.env.CHANNEL_ID,
   githubOwner: process.env.GITHUB_OWNER,
   githubRepo: process.env.GITHUB_REPO,
-  contentPath: 'thought-blog/content/posts', // Where posts are stored in your Gridsome repo
+  baseContentPath: 'thought-blog/content', // Base path for all posts
 };
 
 // Event: Bot is ready
@@ -66,7 +66,9 @@ client.on('messageCreate', async (message) => {
       const slug = slugify(title, { lower: true, strict: true });
       const filename = `${date}-${slug}.md`;
 
-      const result = await commitToGitHub(filename, fileContent);
+      // Determine the content path based on author
+      const authorPath = message.author.username === BARLO_NAME ? 'posts/barlo' : 'posts';
+      const result = await commitToGitHub(filename, fileContent, authorPath);
 
       await message.react('🎉');
     } catch (error) {
@@ -104,7 +106,7 @@ ${tags.map(tag => `  - "${tag}"`).join('\n')}
 }
 
 // Function to commit content to GitHub
-async function commitToGitHub(filename, content) {
+async function commitToGitHub(filename, content, authorPath) {
   try {
     // Get the current reference (HEAD)
     const ref = await octokit.rest.git.getRef({
@@ -135,7 +137,7 @@ async function commitToGitHub(filename, content) {
       base_tree: commit.data.tree.sha,
       tree: [
         {
-          path: `${config.contentPath}/${filename}`,
+          path: `${config.baseContentPath}/${authorPath}/${filename}`,
           mode: '100644',
           type: 'blob',
           sha: blob.data.sha,
@@ -206,7 +208,9 @@ client.on('messageReactionAdd', async (reaction, user) => {
         const filename = `${date}-${slug}.md`;
 
         // Commit to GitHub
-        const result = await commitToGitHub(filename, fileContent);
+        // Determine the content path based on author
+        const authorPath = message.author.username === BARLO_NAME ? 'posts/barlo' : 'posts';
+        const result = await commitToGitHub(filename, fileContent, authorPath);
 
         // React with a success emoji
         await message.react('🎉');

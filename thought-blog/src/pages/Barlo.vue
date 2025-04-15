@@ -2,7 +2,7 @@
   <Layout>
     <div class="terminal">
       <div class="terminal-header">
-        <span class="terminal-title">~/thoughts</span>
+        <span class="terminal-title">~/thoughts/barlo</span>
       </div>
       <div class="terminal-body">
         <div v-for="edge in $page.posts.edges" :key="edge.node.id" class="post">
@@ -22,7 +22,7 @@
 
 <page-query>
 query {
-  posts: allPost(filter: {author: {eq: "qazzquimby"}}, sortBy: "date", order: DESC) {
+  posts: allPost(filter: {author: {eq: "junglejimbo"}}, sortBy: "date", order: DESC) {
     edges {
       node {
         id
@@ -40,7 +40,7 @@ query {
 <script>
 export default {
   metaInfo: {
-    title: 'Thoughts'
+    title: "Barlo"
   },
   methods: {
     formatDate(date) {
@@ -50,6 +50,7 @@ export default {
   }
 }
 </script>
+
 
 <style>
 :root {
