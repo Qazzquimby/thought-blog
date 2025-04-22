@@ -156,8 +156,88 @@ You're a bot on a discord server, sometimes called commenter. Please respond to 
   }
 }
 
+async function handleBlogPost(message) {
+  const content = message.content.replace(/💭|🧿/g, '').trim(); // Remove trigger emojis
+  const author = message.author;
 
-// Event: Bot is ready
+  if (!content) {
+    await message.reply("You've got to say something for the blog post.");
+    return;
+  }
+
+  // Generate title from first 15 words
+  const numWordsInTitle = 15;
+  let title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
+              (content.split(' ').length > numWordsInTitle ? '...' : '');
+  // Remove quotes and other problematic characters
+  title = title.replace(/["'`]/g, '').replace(/[^\w\s-]/g, ' ').trim();
+
+  try {
+    // Create the Markdown content with frontmatter
+    // Use original content for the body, but cleaned content for AI
+    const originalContent = message.content; // Keep original for blog post body
+    const cleanedContentForAI = content; // Use cleaned content for AI prompt
+    const fileContent = createMarkdownContent(title, author.username, [], originalContent);
+
+    // Create filename based on date and title
+    const date = moment().format('YYYY-MM-DD');
+    const slug = slugify(title, { lower: true, strict: true });
+    const filename = `${date}-${slug}.md`;
+
+    // Determine the content path based on author
+    const authorPath = author.username === BARLO_NAME ? 'posts/barlo' : 'posts';
+
+    // Commit to GitHub
+    const result = await commitToGitHub(filename, fileContent, authorPath);
+    await message.react('🎉');
+    // Optional: DM the user with the commit URL
+    await author.send(`Blog post published successfully: ${result.commitUrl}`);
+
+    // Generate and send AI response if applicable
+    const aiResponse = await generateResponse(cleanedContentForAI); // Use cleaned content for AI
+    if (aiResponse) {
+      await message.reply(aiResponse);
+    }
+
+  } catch (error) {
+    console.error('Error processing blog post:', error);
+    await message.react('❌');
+    await author.send(`Error publishing blog post: ${error.message || error}`);
+  }
+}
+
+// Handles answering a direct question from a message
+async function handleDirectQuestion(message) {
+  const content = message.content.replace('❓', '').trim(); // Remove trigger emoji
+  const author = message.author;
+
+   if (!content) {
+    await message.reply("What's your question?");
+    return;
+  }
+
+  try {
+    await message.react('🤔'); // Thinking face emoji
+
+    const aiResponse = await generateDirectResponse(content);
+
+    if (aiResponse) {
+      await message.reply(aiResponse);
+    } else {
+       await message.reply("I couldn't generate a response for some reason.");
+       await message.react('❌');
+    }
+    await message.reactions.resolve('🤔')?.users.remove(client.user.id);
+
+  } catch (error) {
+      console.error('Error generating direct AI response:', error);
+      await message.reply("Sorry, something went wrong while I was thinking about that.");
+      await message.reactions.resolve('🤔')?.users.remove(client.user.id);
+      await message.react('❌');
+  }
+}
+
+
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
   console.log(`Monitoring channel: ${config.channelId}`);
@@ -166,45 +246,16 @@ client.once('ready', () => {
 const QAZZ_NAME = "qazzquimby"
 const BARLO_NAME = "junglejimbo"
 
-// Event: Message received
 client.on('messageCreate', async (message) => {
   if (message.author.bot || message.channelId !== config.channelId) return;
 
-  if (message.content.includes('💭') || message.content.includes('🧿')) {
-    const content = message.content;
+  const content = message.content;
 
-    if (!content) {
-      await message.reply("You've got to say something.");
-      return;
-    }
-
-    const numWordsInTitle = 15;
-    let title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
-                (content.split(' ').length > numWordsInTitle ? '...' : '');
-    // Remove quotes and other problematic characters
-    title = title.replace(/["'`]/g, '').replace(/[^\w\s-]/g, ' ').trim();
-
-    try {
-      const fileContent = createMarkdownContent(title, message.author.username, [], content);
-
-      const date = moment().format('YYYY-MM-DD');
-      const slug = slugify(title, { lower: true, strict: true });
-      const filename = `${date}-${slug}.md`;
-
-      const authorPath = message.author.username === BARLO_NAME ? 'posts/barlo' : 'posts';
-      await commitToGitHub(filename, fileContent, authorPath);
-      await message.react('🎉');
-
-      const aiResponse = await generateResponse(content);
-      if (aiResponse) {
-        await message.reply(aiResponse);
-      }
-    } catch (error) {
-      console.error('Error during post processing (GitHub or AI response):', error);
-      await message.react('❌');
-      // Send a generic error message, or differentiate based on error type if needed
-      await message.author.send(`Error processing your post: ${error.message || error}`);
-    }
+  if (content.includes('💭') || content.includes('🧿')) {
+    await handleBlogPost(message);
+  }
+  else if (content.includes('❓')) {
+     await handleDirectQuestion(message);
   }
 });
 
@@ -315,103 +366,19 @@ client.on('messageReactionAdd', async (reaction, user) => {
       await reaction.message.fetch();
     }
 
-    // Fetch the full message to get its content and author
     const message = reaction.message;
-
-    // Ignore if the message is from a bot or has no content
     if (message.author.bot || !message.content) return;
 
-    const content = message.content;
-
-    // --- Handle Blog Post Reaction (💭) ---
-    if (reaction.emoji.name === '💭') {
-      // Fetch the message if it's a partial (redundant check, but safe)
-      if (reaction.partial) { // This check might be redundant now but kept for safety
-        await reaction.fetch();
-      }
-      
-      // Fetch the full message to get its content
-      const message = await reaction.message.fetch();
-      
-      // Ignore if the message is from a bot or has no content
-      if (message.author.bot || !message.content) return;
-      
-      const content = message.content;
-      
-      // Generate title from first 15 words
-      const numWordsInTitle = 15;
-      let title = content.split(' ').slice(0, numWordsInTitle).join(' ') +
-                  (content.split(' ').length > numWordsInTitle ? '...' : '');
-      // Remove quotes and other problematic characters
-      title = title.replace(/["'`]/g, '').replace(/[^\w\s-]/g, ' ').trim();
-
-      try {
-        // Create the Markdown content with frontmatter
-        const fileContent = createMarkdownContent(title, message.author.username, [], content);
-
-        // Create filename based on date and title
-        const date = moment().format('YYYY-MM-DD');
-        const slug = slugify(title, { lower: true, strict: true });
-        const filename = `${date}-${slug}.md`;
-
-        // Commit to GitHub
-        // Determine the content path based on author
-        const authorPath = message.author.username === BARLO_NAME ? 'posts/barlo' : 'posts';
-        const result = await commitToGitHub(filename, fileContent, authorPath);
-
-        // React with a success emoji
-        await message.react('🎉');
-        
-        // Optional: DM the user with the commit URL to avoid channel spam
-        await message.author.send(`Blog post published successfully: ${result.commitUrl}`);
-      } catch (error) {
-        console.error('Error publishing to GitHub:', error);
-        // React with error emoji
-        await message.react('❌');
-        // DM the error details to avoid channel spam
-        await message.author.send(`Error publishing blog post: ${error.message || error}`);
-      }
+    if (reaction.emoji.name === '💭' || reaction.emoji.name ==='🧿') {
+      await handleBlogPost(message);
     }
-    // --- Handle Direct Question Reaction (❓) ---
     else if (reaction.emoji.name === '❓') {
-      try {
-        // React to show processing started
-        await message.react('🤔'); // Thinking face emoji
-
-        const aiResponse = await generateDirectResponse(content);
-
-        if (aiResponse) {
-          await message.reply(aiResponse);
-          // Remove the thinking emoji after replying
-          await reaction.message.reactions.resolve('🤔')?.users.remove(client.user.id);
-        } else {
-          // Handle case where generateDirectResponse might return null/empty (though current impl returns error string)
-           await message.reply("I couldn't generate a response for some reason.");
-           await reaction.message.reactions.resolve('🤔')?.users.remove(client.user.id);
-           await message.react('❌'); // Indicate failure
-        }
-
-      } catch (error) {
-          console.error('Error generating direct AI response:', error);
-          await message.reply("Sorry, something went wrong while I was thinking about that.");
-          // Ensure thinking emoji is removed even on error
-          await reaction.message.reactions.resolve('🤔')?.users.remove(client.user.id);
-          await message.react('❌'); // Indicate failure
-          // Optionally DM user with more details
-          // await message.author.send(`Error generating AI response: ${error.message || error}`);
-      }
+       await handleDirectQuestion(message);
     }
-    // --- End Handle Direct Question Reaction ---
 
   } catch (error) {
     console.error('Error handling reaction:', error);
-    // Attempt to notify user if possible, depending on where the error occurred
-    try {
-        await reaction.message.react('❌');
-        // Avoid sending DM here as the error might be unrelated to a specific user action
-    } catch (reactError) {
-        console.error('Failed to add error reaction:', reactError);
-    }
+    await reaction.message.react('❌');
   }
 });
 
