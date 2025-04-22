@@ -109,7 +109,7 @@ We really don't want the comment system filled up with trivia or "That's a fasci
     });
 
     const aiResponse = response.data.choices[0].message.content.trim();
-    return aiResponse === '[No Comment]' ? null : aiResponse;
+    return aiResponse.toLowerCase() === '[no comment]' ? null : aiResponse;
   } catch (error) {
     console.error('OpenRouter API Error:', error);
     return null;
