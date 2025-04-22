@@ -82,29 +82,26 @@ async function generateResponse(content) {
     ? `Recent posts:\n${recentPosts.join('\n\n')}\n\nCurrent post:\n` 
     : '';
 
-  messages.push({
+  const system_message = {
     role: "system",
     content: `
 You're an automatic commenter on a personal microblog service. Users enter their thoughts, mostly as a means of journaling.
 You respond to a post very briefly, and only if you think you have something highly beneficial to say. Maybe they're making a serious error, or there's a name for the thing they're thinking of, or you know the answer to their question, etc.
 In any other cases, just respond with [No comment]. Please answer with only your reply or [No comment].
 We really don't want the comment system filled up with trivia or "That's a fascinating idea! Let me parrot it back to you" style noise.`
-  });
+  };
 
-  messages.push({
+  const userMessage = {
     role: "user",
     content: recentContext + content
-  });
+  };
+
+  const message = [system_message, userMessage];
 
   try {
     const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-      model: "google/gemini-2.5-pro-preview-03-25",
-      messages: [
-        {
-          role: "user",
-          content: content
-        }
-      ]
+      model: "google/gemini-2.5-pro-preview-03-25", // TODO: Confirm if this is the desired model
+      messages: message
     }, {
       headers: {
         'Authorization': `Bearer ${config.openRouterKey}`,
@@ -157,18 +154,19 @@ client.on('messageCreate', async (message) => {
 
       // Determine the content path based on author
       const authorPath = message.author.username === BARLO_NAME ? 'posts/barlo' : 'posts';
-      const result = await commitToGitHub(filename, fileContent, authorPath);
-
+      await commitToGitHub(filename, fileContent, authorPath);
       await message.react('🎉');
-    } catch (error) {
-      console.error('Error publishing to GitHub:', error);
-      await message.react('❌');
-      await message.author.send(`Error publishing blog post: ${error}`);
-    }
 
-    const aiResponse = await generateResponse(content);
-    if (aiResponse) {
-      await message.reply(aiResponse);
+      // Also generate and send AI response within the try block
+      const aiResponse = await generateResponse(content);
+      if (aiResponse) {
+        await message.reply(aiResponse);
+      }
+    } catch (error) {
+      console.error('Error during post processing (GitHub or AI response):', error);
+      await message.react('❌');
+      // Send a generic error message, or differentiate based on error type if needed
+      await message.author.send(`Error processing your post: ${error.message || error}`);
     }
   }
 });
