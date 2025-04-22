@@ -116,6 +116,47 @@ We really don't want the comment system filled up with trivia or "That's a fasci
   }
 }
 
+// Function to generate a direct response using a different system prompt
+async function generateDirectResponse(content) {
+  const recentPosts = await getRecentPosts(); // Still provide context
+  const recentContext = recentPosts.length > 0
+    ? `Recent posts:\n${recentPosts.join('\n\n')}\n\nCurrent message:\n`
+    : '';
+
+  const system_message = {
+    role: "system",
+    content: `
+You're a bot on a discord server, sometimes called commenter. Please respond to the current message.
+`
+  };
+
+  const userMessage = {
+    role: "user",
+    content: recentContext + content
+  };
+
+  const messages = [system_message, userMessage];
+
+  try {
+    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+      model: "google/gemini-2.5-pro-preview-03-25",
+      messages: messages
+    }, {
+      headers: {
+        'Authorization': `Bearer ${config.openRouterKey}`,
+      }
+    });
+
+    // Return the response directly, without filtering for "[No comment]"
+    return response.data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error('OpenRouter API Error (Direct Response):', error);
+    // Return a user-friendly error message instead of null
+    return "Sorry, I encountered an error trying to generate a response.";
+  }
+}
+
+
 // Event: Bot is ready
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
@@ -144,20 +185,16 @@ client.on('messageCreate', async (message) => {
     title = title.replace(/["'`]/g, '').replace(/[^\w\s-]/g, ' ').trim();
 
     try {
-      // Create the Markdown content with frontmatter
       const fileContent = createMarkdownContent(title, message.author.username, [], content);
 
-      // Create filename based on date and title
       const date = moment().format('YYYY-MM-DD');
       const slug = slugify(title, { lower: true, strict: true });
       const filename = `${date}-${slug}.md`;
 
-      // Determine the content path based on author
       const authorPath = message.author.username === BARLO_NAME ? 'posts/barlo' : 'posts';
       await commitToGitHub(filename, fileContent, authorPath);
       await message.react('🎉');
 
-      // Also generate and send AI response within the try block
       const aiResponse = await generateResponse(content);
       if (aiResponse) {
         await message.reply(aiResponse);
@@ -269,11 +306,27 @@ client.on('messageReactionAdd', async (reaction, user) => {
   try {
     // Ignore reactions from bots and reactions in other channels
     if (user.bot || reaction.message.channelId !== config.channelId) return;
-    
-    // Check if the reaction is a thought_balloon emoji
+
+    // Fetch the message if it's a partial
+    if (reaction.partial) {
+      await reaction.fetch();
+    }
+    if (reaction.message.partial) {
+      await reaction.message.fetch();
+    }
+
+    // Fetch the full message to get its content and author
+    const message = reaction.message;
+
+    // Ignore if the message is from a bot or has no content
+    if (message.author.bot || !message.content) return;
+
+    const content = message.content;
+
+    // --- Handle Blog Post Reaction (💭) ---
     if (reaction.emoji.name === '💭') {
-      // Fetch the message if it's a partial
-      if (reaction.partial) {
+      // Fetch the message if it's a partial (redundant check, but safe)
+      if (reaction.partial) { // This check might be redundant now but kept for safety
         await reaction.fetch();
       }
       
@@ -316,11 +369,49 @@ client.on('messageReactionAdd', async (reaction, user) => {
         // React with error emoji
         await message.react('❌');
         // DM the error details to avoid channel spam
-        await message.author.send(`Error publishing blog post: ${error}`);
+        await message.author.send(`Error publishing blog post: ${error.message || error}`);
       }
     }
+    // --- Handle Direct Question Reaction (❓) ---
+    else if (reaction.emoji.name === '❓') {
+      try {
+        // React to show processing started
+        await message.react('🤔'); // Thinking face emoji
+
+        const aiResponse = await generateDirectResponse(content);
+
+        if (aiResponse) {
+          await message.reply(aiResponse);
+          // Remove the thinking emoji after replying
+          await reaction.message.reactions.resolve('🤔')?.users.remove(client.user.id);
+        } else {
+          // Handle case where generateDirectResponse might return null/empty (though current impl returns error string)
+           await message.reply("I couldn't generate a response for some reason.");
+           await reaction.message.reactions.resolve('🤔')?.users.remove(client.user.id);
+           await message.react('❌'); // Indicate failure
+        }
+
+      } catch (error) {
+          console.error('Error generating direct AI response:', error);
+          await message.reply("Sorry, something went wrong while I was thinking about that.");
+          // Ensure thinking emoji is removed even on error
+          await reaction.message.reactions.resolve('🤔')?.users.remove(client.user.id);
+          await message.react('❌'); // Indicate failure
+          // Optionally DM user with more details
+          // await message.author.send(`Error generating AI response: ${error.message || error}`);
+      }
+    }
+    // --- End Handle Direct Question Reaction ---
+
   } catch (error) {
     console.error('Error handling reaction:', error);
+    // Attempt to notify user if possible, depending on where the error occurred
+    try {
+        await reaction.message.react('❌');
+        // Avoid sending DM here as the error might be unrelated to a specific user action
+    } catch (reactError) {
+        console.error('Failed to add error reaction:', reactError);
+    }
   }
 });
 
