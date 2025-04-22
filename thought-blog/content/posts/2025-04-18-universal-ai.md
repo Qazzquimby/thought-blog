@@ -2,6 +2,7 @@
 title: "Rumination: Universal AI"
 date: 2025-04-18 00:00:00
 author: "qazzquimby"
+type: "rumination"
 ---
 
 # Universal Game AI

@@ -6,6 +6,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const { Octokit } = require('octokit');
 const moment = require('moment');
 const slugify = require('slugify');
+const axios = require('axios');
 
 // Initialize Discord client
 const client = new Client({
@@ -30,7 +31,47 @@ const config = {
   githubOwner: process.env.GITHUB_OWNER,
   githubRepo: process.env.GITHUB_REPO,
   baseContentPath: 'thought-blog/content', // Base path for all posts
+  openRouterKey: process.env.OPENROUTER_API_KEY,
 };
+
+
+
+async function generateResponse(content) {
+  // TODO get past 5 posts, capping their length at a few sentences ach.
+  // create message for "recent posts"
+
+
+  const messages = []
+
+
+  messages.push(```
+You're an automatic commenter on a personal microblog service. Users enter their thoughts, mostly as a means of journaling.
+You respond to a post very briefly, and only if you think you have something highly beneficial to say. Maybe they're making a serious error, or there's a name for the thing they're thinking of, or you know the answer to their question, etc.
+In any other cases, just respond with [No comment]. Please answer with only your reply or [No comment].
+We really don't want the comment system filled up with trivia or "That's a fascinating idea! Let me parrot it back to you" style noise.```)
+
+  try {
+    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+      model: "google/gemini-2.5-pro-preview-03-25",
+      messages: [
+        {
+          role: "user",
+          content: content
+        }
+      ]
+    }, {
+      headers: {
+        'Authorization': `Bearer ${config.openRouterKey}`,
+      }
+    });
+
+    const aiResponse = response.data.choices[0].message.content.trim();
+    return aiResponse === '[No Comment]' ? null : aiResponse;
+  } catch (error) {
+    console.error('OpenRouter API Error:', error);
+    return null;
+  }
+}
 
 // Event: Bot is ready
 client.once('ready', () => {
@@ -77,6 +118,11 @@ client.on('messageCreate', async (message) => {
       console.error('Error publishing to GitHub:', error);
       await message.react('❌');
       await message.author.send(`Error publishing blog post: ${error}`);
+    }
+
+    const aiResponse = await generateResponse(content);
+    if (aiResponse) {
+      await message.reply(aiResponse);
     }
   }
 });
