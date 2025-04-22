@@ -36,19 +36,65 @@ const config = {
 
 
 
+async function getRecentPosts() {
+  try {
+    const response = await octokit.rest.repos.getContent({
+      owner: config.githubOwner,
+      repo: config.githubRepo,
+      path: `${config.baseContentPath}/posts`,
+    });
+
+    // Sort files by name (which includes date) in reverse order
+    const files = response.data
+      .filter(file => file.name.endsWith('.md'))
+      .sort((a, b) => b.name.localeCompare(a.name))
+      .slice(0, 5);
+
+    const posts = [];
+    for (const file of files) {
+      const content = await octokit.rest.repos.getContent({
+        owner: config.githubOwner,
+        repo: config.githubRepo,
+        path: file.path,
+      });
+      
+      // Decode content from base64
+      const decodedContent = Buffer.from(content.data.content, 'base64').toString();
+      
+      // Extract just the content after frontmatter
+      const postContent = decodedContent.split('---')[2] || '';
+      
+      // Take first few sentences (up to 3)
+      const sentences = postContent.split(/[.!?]+/).slice(0, 3).join('. ').trim();
+      posts.push(sentences);
+    }
+    
+    return posts;
+  } catch (error) {
+    console.error('Error fetching recent posts:', error);
+    return [];
+  }
+}
+
 async function generateResponse(content) {
-  // TODO get past 5 posts, capping their length at a few sentences ach.
-  // create message for "recent posts"
+  const recentPosts = await getRecentPosts();
+  const recentContext = recentPosts.length > 0 
+    ? `Recent posts:\n${recentPosts.join('\n\n')}\n\nCurrent post:\n` 
+    : '';
 
-
-  const messages = []
-
-
-  messages.push(```
+  messages.push({
+    role: "system",
+    content: `
 You're an automatic commenter on a personal microblog service. Users enter their thoughts, mostly as a means of journaling.
 You respond to a post very briefly, and only if you think you have something highly beneficial to say. Maybe they're making a serious error, or there's a name for the thing they're thinking of, or you know the answer to their question, etc.
 In any other cases, just respond with [No comment]. Please answer with only your reply or [No comment].
-We really don't want the comment system filled up with trivia or "That's a fascinating idea! Let me parrot it back to you" style noise.```)
+We really don't want the comment system filled up with trivia or "That's a fascinating idea! Let me parrot it back to you" style noise.`
+  });
+
+  messages.push({
+    role: "user",
+    content: recentContext + content
+  });
 
   try {
     const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
