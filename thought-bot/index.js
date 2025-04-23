@@ -76,11 +76,14 @@ async function getRecentPosts() {
   }
 }
 
-async function generateResponse(content) {
+async function generateResponse(content, recentChatMessages = '') {
   const recentPosts = await getRecentPosts();
-  const recentContext = recentPosts.length > 0 
-    ? `Recent posts:\n${recentPosts.join('\n\n')}\n\nCurrent post:\n` 
+  const recentPostsContext = recentPosts.length > 0
+    ? `Recent posts:\n${recentPosts.join('\n\n')}\n\n`
     : '';
+  const recentChatContext = recentChatMessages ? `Recent chat messages:\n${recentChatMessages}\n\n` : '';
+  const currentPostContext = `Current post:\n`;
+
 
   const system_message = {
     role: "system",
@@ -93,7 +96,7 @@ We really don't want the comment system filled up with trivia or "That's a fasci
 
   const userMessage = {
     role: "user",
-    content: recentContext + content
+    content: recentPostsContext + recentChatContext + currentPostContext + content
   };
 
   const message = [system_message, userMessage];
@@ -116,12 +119,35 @@ We really don't want the comment system filled up with trivia or "That's a fasci
   }
 }
 
+async function sendLongMessage(message, text) {
+  const MAX_LENGTH = 2000;
+  if (text.length <= MAX_LENGTH) {
+    await message.reply(text);
+  } else {
+    let remainingText = text;
+    let firstReply = true;
+    while (remainingText.length > 0) {
+      const chunk = remainingText.substring(0, MAX_LENGTH);
+      remainingText = remainingText.substring(MAX_LENGTH);
+      if (firstReply) {
+        await message.reply(chunk);
+        firstReply = false;
+      } else {
+        await message.channel.send(chunk);
+      }
+    }
+  }
+}
+
+
 // Function to generate a direct response using a different system prompt
-async function generateDirectResponse(content) {
+async function generateDirectResponse(content, recentChatMessages = '') {
   const recentPosts = await getRecentPosts(); // Still provide context
-  const recentContext = recentPosts.length > 0
-    ? `Recent posts:\n${recentPosts.join('\n\n')}\n\nCurrent message:\n`
+  const recentPostsContext = recentPosts.length > 0
+    ? `Recent posts:\n${recentPosts.join('\n\n')}\n\n`
     : '';
+  const recentChatContext = recentChatMessages ? `Recent chat messages:\n${recentChatMessages}\n\n` : '';
+  const currentMessageContext = `Current message:\n`;
 
   const system_message = {
     role: "system",
@@ -132,7 +158,7 @@ You're a bot on a discord server, sometimes called commenter. Please respond to 
 
   const userMessage = {
     role: "user",
-    content: recentContext + content
+    content: recentPostsContext + recentChatContext + currentMessageContext + content
   };
 
   const messages = [system_message, userMessage];
@@ -193,10 +219,18 @@ async function handleBlogPost(message) {
     // Optional: DM the user with the commit URL
     await author.send(`Blog post published successfully: ${result.commitUrl}`);
 
+    // Fetch recent messages for context
+    const messages = await message.channel.messages.fetch({ limit: 11 }); // Fetch 10 previous + current
+    const recentChatMessages = messages
+        .filter(m => m.id !== message.id) // Exclude the triggering message
+        .map(m => `${m.author.username}: ${m.content}`)
+        .reverse() // Chronological order
+        .join('\n');
+
     // Generate and send AI response if applicable
-    const aiResponse = await generateResponse(cleanedContentForAI); // Use cleaned content for AI
+    const aiResponse = await generateResponse(cleanedContentForAI, recentChatMessages);
     if (aiResponse) {
-      await message.reply(aiResponse);
+      await sendLongMessage(message, aiResponse);
     }
 
   } catch (error) {
@@ -217,14 +251,22 @@ async function handleDirectQuestion(message) {
   }
 
   try {
-    await message.react('🤔'); // Thinking face emoji
+    await message.react('🤔');
 
-    const aiResponse = await generateDirectResponse(content);
+    // Fetch recent messages for context
+    const messages = await message.channel.messages.fetch({ limit: 11 }); // Fetch 10 previous + current
+    const recentChatMessages = messages
+        .filter(m => m.id !== message.id) // Exclude the triggering message
+        .map(m => `${m.author.username}: ${m.content}`)
+        .reverse() // Chronological order
+        .join('\n');
+
+    const aiResponse = await generateDirectResponse(content, recentChatMessages);
 
     if (aiResponse) {
-      await message.reply(aiResponse);
+      await sendLongMessage(message, aiResponse);
     } else {
-       await message.reply("I couldn't generate a response for some reason.");
+       await message.reply(aiResponse || "I couldn't generate a response for some reason.");
        await message.react('❌');
     }
     await message.reactions.resolve('🤔')?.users.remove(client.user.id);
