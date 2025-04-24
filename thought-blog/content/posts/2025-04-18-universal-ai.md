@@ -98,5 +98,5 @@ After they've played for a while, train the machine learning model just like bef
 
 Then you get comfortable because google's superhuman AlphaZero go player was trained over millions of games spread out across many powerful processors, which I estimate might cost about 200k usd on rented infrastructure.
 
-So that's dismal. I know a lot to be done on efficiency and compute is cheaper now, but not sure exactly how unaffordable AI training is now. The Dominion AI was trained somehow, possibly without spending a fortune. Lead in to chapter 2 where I talk about the Dominion AI.
-
+So that sounds dismal. Yet somehow the Dominion AI, another extraordinarily difficult game to play, was trained in only a couple months on unspecialized home hardware. 
+Next post is all about the Dominion AI and the other ways in which it is incredible.
