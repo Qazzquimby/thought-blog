@@ -27,17 +27,17 @@ That alternating between thinking what you should do, and thinking how the oppon
 TicTacToe sucks though, lets play something else. Connect4 looks similar on the surface, and it doesn't look terribly difficult but instead of a state-tree of 9x8x7x... it's more like 7x7x7x7x... for maybe 35 turns. That comes out to about "38" followed by 28 "0"s, or 380 billion billion billion. That rules out brute forcing the whole game like TicTacToe, so what can be done?
 We still want a tree to give us a sense of which actions lead to good outcomes, but now we have to build the tree efficiently. After some seconds our human opponent will get impatient, so we have a limited number of tree-building-steps to work with.
 What makes a useful tree?
-- If there's a good move nearby, we want to take it, so we want to explore all the nearby game states somewhat to find out what's promising. If there's a winning move available and we never look at it, we throw the win away. Think of this as wanting to *explore* actions to find out what's good.
+- If there's a good move nearby, we want to take it, so we want to explore all the nearby game states somewhat to find out what's promising. If there's a winning move available and we never look at it, we throw the win away. Think of this as *exploring* actions to find out what's good.
 - The moves that look more promising are the ones more likely to be chosen in the end, so we get more value from exploring them further. We take a good looking action, the opponent takes a good looking counter-action. Exploring an unpromising action is less likely to change our decision, so they can get less attention. Think of this as *exploiting* actions we already think are good.
 
 ### Monte Carlo Tree Search
-Fortunately there's a very popular and powerful algorithm for this, *Monte Carlo Tree Search* (MCTS to save my fingers). Every time it has to choose an action branch on the tree to explore, it gives every option a score based on "how much has this action been ignored compared to the other actions at this state" (preferring *exploring*) + "how much has this action lead to good outcomes the current player at this state" (preferring *exploiting*).
+Fortunately there's a very popular and powerful algorithm for this, *Monte Carlo Tree Search* (MCTS to save my fingers). Every time it has to choose an action branch on the tree to explore, it gives every option a score based on "how much has this action been ignored compared to the other actions at this state" (preferring *exploring*) + "how much has this action lead to good outcomes for the current player at this state" (preferring *exploiting*).
 
-But how does MCTS know which actions are good? Obviously if a move wins you the game it's a good move, but earlier in the game a win might be many turns away.
+But how does MCTS know which actions are good? Obviously if a move wins you the game, it's a good move, but earlier in the game a win might be many turns away.
 There's no easy answer to this! If you could perfectly tell how good any game state was just by looking at it, you could just look at every action from your current position, and take the one that leads to the best state. Instead we have to lean on rough estimates.
 - The "Monte Carlo" part is alluding to randomness because casinos I guess, and the default solution proposed with the algorithm was "random rollouts" where you figure out how good a state is by having both players play randomly until someone wins. That kind of works because the player closer to winning will hopefully be more likely to win randomly, but its very noisy and slow.
 - You could also hand write some code to estimate, like in connect4 having 3-in-a-rows is good and your opponent having them is bad. You could probably write a pretty good estimate if you're an expert and have time to experiment, but that's hard.
-- *Machine learning* which I'll get to later under "Alphazero"
+- *Machine learning* which I'll get to later under "AlphaZero"
 
 So you repeatedly pick a part of the tree to expand move based on how under-explored it looks and how promising that part of the tree looks. Eventually you run out of time and you pick the move that's currently most promising! Even with random rollouts that'll make a decent connect4 AI right there, and you can always wait longer to give it more simulation time.
 
@@ -48,21 +48,21 @@ So you repeatedly pick a part of the tree to expand move based on how under-expl
 
 ## Go and AlphaGo
 
-So you're feeling pretty good, thinking you've got a nice general MCTS game player. You can plug in checkers, othello, pretty much any 'simple' game you can think of. You could even modify it to handle games with random elements with some work.
+So you're feeling pretty good, thinking you've got a nice general MCTS game player. You can plug in checkers, othello, chess (with some difficulty), pretty much any 'simple' game you can think of. 
 Go is basically just one of those games with a really big board, so it seems like it should work. It does not.
 MCTS was able to do okay on connect4 with 7 possible actions per turn and maybe 35 turns.
 Go has a 19x19 board (361 spaces) and the game usually lasts ~200 turns, so that's around uh... "1" followed by 768 "0"s total tree size. It's pretty hard to fathom how large that number is. MCTS is cooked. 
 - In the time connect4 MCTS could try every action, then every counter-action to each of those, and every counter-counter-action to each of those, go MCTS would have only tried each square once, so MCTS can't explore effectively without burning out its sim budget.
-- The default solution of random rollouts is pretty awful in MCTS. It'll take ages to get to the end of the game, and the enormous board is mostly made up of dumb moves. Without decent value estimates, MCTS can't exploit effectively.
+- The default solution of random rollouts is pretty awful for Go. It'll take ages to get to the end of the game, and the enormous board is mostly made up of dumb moves. Without decent value estimates, MCTS can't exploit effectively.
 Basically looks impossible, but you probably know it was already solved by google a while ago.
 
 ### Machine Learning
-This is where the machine learning comes in. Machine learning makes a mathematical formula to map some input to some output, like photos to "is cat"/"is dog" labels. Inside the formula are many adjustable parameters, which start off random, causing random output. Using a bit of calculus it's possible to not only see how wrong the formula's answer is, but how all of those parameters should be changed so it would do better. Run that long enough with enough examples and eventually the formula stops outputting garbage and starts being useful.
+This is where the machine learning comes in. Machine learning makes a mathematical formula to map some input to some output, like mapping photos to "is cat"/"is dog" labels. Inside the formula are many adjustable parameters, which start off random, causing random output. When the formula gets a wrong answer, using a bit of calculus it's possible to see how all of those parameters should be changed so it would do better. Run that long enough with enough examples and eventually the formula stops outputting garbage and starts being useful.
 Machine learning models usually want a fixed-size list of numbers as an input, and another fixed-size list of numbers as an output, and in between it does various transformations usually involving more fixed-size lists of numbers.
 
 In this case we want the machine learning model to help MCTS play go. For now, let's imagine we already have an enormous mountain of expert play data for the model to learn from.
 
-The input is going to be a list of 361 numbers, like the board flattened into a line. Maybe -1 for black and +1 for white and 0 for empty. Normally flattening the board would lose all the row/column information, but you could have the architecture inside the model understand it like a grid, so it's okay.
+The input is going to be a list of 361 numbers, like the 19x19 board flattened into a line. Maybe -1 for black and +1 for white and 0 for empty. Normally flattening the board would lose all the row/column information, but you could have the architecture inside the model understand it like a grid, so it's okay.
 
 What do we want the output to be?
 ### Value
@@ -89,7 +89,7 @@ So if the model learns well, and you have a powerful policy and value prediction
 But that all relied on an extremely convenient mountain of expert data. What do you do if you're not so lucky?
 
 ## AlphaZero
-I think this one will be shorter?
+I think this section will be shorter?
 We already have our enhanced MCTS framework, and we just need to replace where we get the data from. We don't have experts anymore. We need to learn expert play in a cave with a box of scraps.
 Our AI needs to be the expert which it learns from.
 
