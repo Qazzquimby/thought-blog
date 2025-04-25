@@ -24,18 +24,23 @@ query {
 <style>
 :root {
   --bg-color: #1f1f23;
-  --text-color: #333;
   --accent-color: #50fa7b;
   --link-color: #6272a4;
+  /* Terminal Colors */
+  --terminal-bg: #282a36;
+  --terminal-text: #f8f8f2;
+  --terminal-green: #50fa7b; /* Same as accent-color */
+  --terminal-header: #44475a;
+  --terminal-divider: #44475a; /* Same as header */
 }
 
 body {
+  color: var(--terminal-text);
   font-family: 'Courier New', monospace;
   margin: 0;
   padding: 0;
   line-height: 1.5;
   background-color: var(--bg-color);
-  color: var(--text-color);
 }
 
 .layout {
@@ -69,5 +74,72 @@ body {
 .nav__link:hover {
   text-decoration: underline;
   color: var(--accent-color);
+}
+
+/* Terminal Styles */
+.terminal {
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  margin: 20px 0;
+}
+
+.terminal-header {
+  background-color: var(--terminal-header);
+  padding: 10px 15px;
+  font-size: 14px;
+}
+
+.terminal-title {
+  color: var(--terminal-green);
+}
+
+.terminal-body {
+  padding: 15px;
+}
+
+.post {
+  margin-bottom: 20px;
+}
+
+.post-meta {
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #bd93f9; /* Consider moving this to :root if used elsewhere */
+}
+
+.post-date {
+  margin-right: 10px;
+}
+
+.post-author {
+  color: #8be9fd; /* Consider moving this to :root if used elsewhere */
+}
+
+.post-content {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.post-content blockquote {
+  color: red; /* Consider moving this to :root if used elsewhere */
+}
+
+.post-link a {
+  color: var(--terminal-green);
+  text-decoration: none;
+  font-size: 0.8em;
+}
+
+.post-link a:hover {
+  text-decoration: underline;
+}
+
+.terminal-divider {
+  height: 1px;
+  background-color: var(--terminal-divider);
+  margin: 15px 0;
 }
 </style>

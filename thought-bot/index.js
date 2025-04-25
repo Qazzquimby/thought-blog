@@ -426,3 +426,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 // Login to Discord with partials enabled for reactions
 client.login(config.discordToken);
+
+
+// todo use threads for multipart replies

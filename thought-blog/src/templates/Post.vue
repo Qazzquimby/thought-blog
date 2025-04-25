@@ -52,7 +52,7 @@ export default {
 }
 
 .back-link {
-  color: var(--terminal-green);
+  color: var(--terminal-green); /* Uses variable defined in Default.vue */
   text-decoration: none;
 }
 
