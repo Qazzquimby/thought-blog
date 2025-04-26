@@ -10,6 +10,7 @@
 module.exports = {
   siteName: 'thoughts',
   siteDescription: 'Muttering into the Void',
+  icon: "./src/favicon.ico",
 
   templates: {
     Post: '/blog/:fileInfo__name',
