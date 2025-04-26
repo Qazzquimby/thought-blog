@@ -12,10 +12,10 @@ I play against the AI on the Dominion app most days, and it beats me around 80% 
 # Chapter 1: Simple Games
 > Wherein the author dumps a great deal of context necessary to understand his upcoming Main Point.
 
-It's a bit rude to call chess or go "simple games", but I'll do it anyway because I'm comparing them with things like Magic: The Gathering (~30k cards, absurd interactions).
+It's a bit rude to call Chess or Go "simple games", but I'll do it anyway because I'm comparing them with things like Magic: The Gathering (~30k cards, absurd interactions).
 I don't mean that these games are easy, or lack depth, or don't take a lifetime to master; By simple games, I'm gesturing towards games with
 - Consistent and constrained rules and structure. Chess doesn't suddenly get a DLC adding portals or weather.
-- Consistent and constrained action spaces. TicTacToe and go have one potential action per space, and any arbitrary chess move could be represented by its start and end points. In complex modern board games you might be asked to choose between anything that the game rules could support.
+- Consistent and constrained action spaces. TicTacToe and go have one potential action per space, and any arbitrary Chess move could be represented by its start and end points. In complex modern board games you might be asked to choose between anything that the game rules could support.
 
 Simple game AI is pretty much taken care of! 
 
@@ -42,14 +42,14 @@ There's no easy answer to this! If you could perfectly tell how good any game st
 
 So you repeatedly pick a part of the tree to expand, selecting an action based on how under-explored it looks and how promising that part of the tree looks. Eventually, you run out of time and you pick the move that's currently most promising! Even with random rollouts that'll make a decent Connect4 AI right there, and you can always wait longer to give it more simulation time.
 
-> I think I won't write a new section for chess because it branches off from the destination I'm writing towards, but in short, powerful chess engines use:
+> I think I won't write a new section for Chess because it branches off from the destination I'm writing towards, but in short, powerful Chess engines use:
 - A similar algorithm for tree expansion called minimax with different details
 - Really good board evaluation estimates, which more recently added machine learning
 - Really efficient game handling to make the simulations fast
 
 ## Go and AlphaGo
 
-So you're feeling pretty good, thinking you've got a nice general MCTS game player. You can plug in checkers, othello, chess (with some difficulty), pretty much any 'simple' game you can think of. 
+So you're feeling pretty good, thinking you've got a nice general MCTS game player. You can plug in Checkers, Othello, Chess (with some difficulty), pretty much any 'simple' game you can think of. 
 Go is basically just one of those games with a really big board, so it seems like it should work. It does not.
 MCTS was able to do okay on Connect4 with 7 possible actions per turn and maybe 35 turns.
 Go has a 19x19 board (361 spaces) and the game usually lasts ~200 turns, so that's around uh... "1" followed by 768 "0"s total tree size. It's pretty hard to fathom how large that number is. MCTS is cooked.
