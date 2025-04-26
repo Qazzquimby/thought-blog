@@ -22,6 +22,13 @@ query {
 </static-query>
 
 <style>
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('../assets/fonts/CourierPrime-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --bg-color: #1f1f23;
   --accent-color: #50fa7b;
@@ -36,8 +43,8 @@ query {
 
 body {
   color: var(--terminal-text);
-  font-family: 'Times New Roman', serif;
-  font-size: 18.2px;
+  font-family: 'Courier Prime', serif;
+  font-size: 18px;
   font-weight: 400;
   margin: 0;
   padding: 0;
@@ -132,6 +139,16 @@ body {
   margin-right: 10px;
   color: #bbbbbb;
   font-style: italic;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+  margin-top: 1.5em; /* More space above */
+  margin-bottom: 0.5em; /* Less space below */
 }
 
 .post-content em {
