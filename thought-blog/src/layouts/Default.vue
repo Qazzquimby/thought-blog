@@ -36,7 +36,9 @@ query {
 
 body {
   color: var(--terminal-text);
-  font-family: 'Courier New', monospace;
+  font-family: 'Times New Roman', serif;
+  font-size: 18.2px;
+  font-weight: 400;
   margin: 0;
   padding: 0;
   line-height: 1.5;
@@ -126,11 +128,17 @@ body {
 .post-content blockquote {
   border-left: 3px solid var(--terminal-green); /* Use accent color for the line */
   padding-left: 15px;
-  margin-left: 10px; /* Indent slightly */
+  margin-left: 10px;
   margin-right: 10px;
-  color: #bbbbbb; /* Slightly muted text color for readability */
-  font-style: italic; /* Optional: make it visually distinct */
+  color: #bbbbbb;
+  font-style: italic;
 }
+
+.post-content em {
+  color: #f6abca; /* Slightly muted text color for readability */
+}
+
+
 
 .post-link a {
   color: var(--terminal-green);
