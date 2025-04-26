@@ -10,7 +10,7 @@
 module.exports = {
   siteName: 'thoughts',
   siteDescription: 'Muttering into the Void',
-  icon: "./src/favicon.ico",
+  // icon: "src/favicon.ico", // gridsome crashes due to an internal error when I use this. path is right.
 
   templates: {
     Post: '/blog/:fileInfo__name',
