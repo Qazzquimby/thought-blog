@@ -44,7 +44,7 @@ query {
 body {
   color: var(--terminal-text);
   font-family: 'Courier Prime', serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   margin: 0;
   padding: 0;
@@ -53,7 +53,7 @@ body {
 }
 
 .layout {
-  max-width: 760px;
+  max-width: 820px;
   margin: 0 auto;
   padding-left: 20px;
   padding-right: 20px;
@@ -139,6 +139,10 @@ body {
   margin-right: 10px;
   color: #bbbbbb;
   font-style: italic;
+}
+
+.post-content code {
+
 }
 
 .post-content h1,

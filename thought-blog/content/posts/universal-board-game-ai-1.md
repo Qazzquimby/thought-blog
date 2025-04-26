@@ -10,7 +10,7 @@ type: "rumination"
 I play against the AI on the Dominion app most days, and it beats me around 80% of the time despite me having played for years. That's fantastic. You get the benefit of a high-level playing group, always available, faster than a human opponent would play. With access to AI like this, a game developer could evaluate game balance and optimal strategies automatically. It also gives me an exciting feeling of technological victory over the world. Achieving that kind of AI is very hard, and I'm going to write about it.
 
 # Chapter 1: Simple Games
-`Wherein the author dumps a great deal of context necessary to understand his upcoming Main Point.`
+> Wherein the author dumps a great deal of context necessary to understand his upcoming Main Point.
 
 It's a bit rude to call chess or go "simple games", but I'll do it anyway because I'm comparing them with things like Magic: The Gathering (~30k cards, absurd interactions).
 I don't mean that these games are easy, or lack depth, or don't take a lifetime to master; By simple games, I'm gesturing towards games with
@@ -42,7 +42,7 @@ There's no easy answer to this! If you could perfectly tell how good any game st
 
 So you repeatedly pick a part of the tree to expand, selecting an action based on how under-explored it looks and how promising that part of the tree looks. Eventually you run out of time and you pick the move that's currently most promising! Even with random rollouts that'll make a decent Connect4 AI right there, and you can always wait longer to give it more simulation time.
 
-> I think I won't write a new section for chess because it branches off from the destination I'm writing towards, but in short, powerful chess engines:
+> I think I won't write a new section for chess because it branches off from the destination I'm writing towards, but in short, powerful chess engines use:
 - A similar algorithm for tree expansion called minimax with different details
 - Really good board evaluation estimates, which more recently added machine learning
 - Really efficient game handling to make the simulations fast
