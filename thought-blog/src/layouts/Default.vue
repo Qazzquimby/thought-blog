@@ -124,7 +124,12 @@ body {
 }
 
 .post-content blockquote {
-  color: red; /* Consider moving this to :root if used elsewhere */
+  border-left: 3px solid var(--terminal-green); /* Use accent color for the line */
+  padding-left: 15px;
+  margin-left: 10px; /* Indent slightly */
+  margin-right: 10px;
+  color: #bbbbbb; /* Slightly muted text color for readability */
+  font-style: italic; /* Optional: make it visually distinct */
 }
 
 .post-link a {
