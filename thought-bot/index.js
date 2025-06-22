@@ -228,10 +228,10 @@ async function handleBlogPost(message) {
         .join('\n');
 
     // Generate and send AI response if applicable
-    const aiResponse = await generateResponse(cleanedContentForAI, recentChatMessages);
-    if (aiResponse) {
-      await sendLongMessage(message, aiResponse);
-    }
+    // const aiResponse = await generateResponse(cleanedContentForAI, recentChatMessages);
+    // if (aiResponse) {
+    //   await sendLongMessage(message, aiResponse);
+    // }
 
   } catch (error) {
     console.error('Error processing blog post:', error);
