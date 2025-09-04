@@ -16,7 +16,7 @@ It's a bit rude to call Chess or Go "simple games", but I'll do it anyway becaus
 
 I don't mean that these games are easy, or lack depth, or don't take a lifetime to master; By simple games, I'm gesturing towards games with
 - Consistent and constrained rules and structure. Chess doesn't suddenly get a DLC adding portals or weather.
-- Consistent and constrained action spaces. TicTacToe and go have one potential action per space, and any arbitrary Chess move could be represented by its start and end points. In complex modern board games you might be asked to choose between anything that the game rules could support.
+- Consistent and constrained action spaces. TicTacToe and Go have one potential action per space, and any arbitrary Chess move could be represented by its start and end points. In complex modern board games you might be asked to choose between anything that the game rules could support.
 
 Simple game AI is pretty much taken care of! You can lose to AI at any simple game of your choice.
 
@@ -103,18 +103,18 @@ Okay so now when MCTS is picking which action to look into, in addition to using
 
 So if the model learns well and you have a powerful policy and value prediction, MCTS can race through even enormous spaces like Go's board. The policy lets it waste much less time evaluating bad actions, and the value gives it a much clearer view of which paths it's exploring are worth more attention. Neat.
 
-But that all relied on an extremely convenient mountain of expert data. What do you do if you're not so lucky? What instead of a tonne of data, you have ... *zero*.
+But that all relied on an extremely convenient mountain of expert data. What do you do if you're not so lucky? What if, instead of a tonne of data, you have ... *zero*.
 
 ## AlphaZero
 I think this section will be shorter?
 
 We already have our enhanced MCTS framework, and we just need to replace where we get the data from. We don't have experts anymore. We need to learn expert play in a cave with a box of scraps.
 
-Our AI needs to be the expert that it learns from.
+Our AI needs to *be* the expert that it learns from.
 
-Start off with the model stupid, but skip the step where you train the model. Take your stupid-model-enhanced MCTS and make two copies with fun names like `player_0` and `player_1`. Make them play against each other, terribly, and take notes. These losers are our experts.
+Start off with the model stupid as usual, but skip the step where you train the model and jump right into playing some games. Take your stupid-model-enhanced MCTS and make two copies with fun names like `player_0` and `player_1`. Make them play against each other, terribly, and take notes. These losers are our experts.
 
-After they've played for a while, train the machine learning model just like before, but using our self-made data. The key thing is, this data is still better than nothing. The values from those games *do* give some indication for which states were good, and the policies (action choices) *do* show which actions score well from MCTS simulation. It won't learn to be an expert in one step, but it'll learn to be slightly less bad. Then do that over and over again and it should hopefully become less bad each time until it wipes the floor with you.
+After they've played for a while, train the machine learning model just like before, but using our self-made data. The key thing is, this data is still better than nothing. The values from those games *do* give some indication for which states were good, and the policies (action choices) *do* show which actions score well from MCTS simulation. It won't learn to be an expert in one step, but it'll learn to be slightly less bad. Then play more games and train again, and do that over and over again and it should hopefully become less bad each time until eventually it wipes the floor with you.
 
 Get comfortable waiting, because google's superhuman AlphaZero Go player was trained over millions of games spread out across many powerful processors, which I estimate might cost about 200k USD on rented infrastructure.
 
