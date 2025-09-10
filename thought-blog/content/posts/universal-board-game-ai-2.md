@@ -5,9 +5,10 @@ author: "qazzquimby"
 type: "rumination"
 ---
 
-# Toward Universal Board Game AI - Ch 2. How Dominion got Solved
+# Toward Universal Board Game AI
+# Ch 2. How Dominion got Solved
 
-`Wherein the author hoots and jibbers excitedly.`
+> Wherein the author hoots and jibbers excitedly.
 
 In the [first chapter](https://thoughts.toren.dev/blog/universal-board-game-ai-1/) I explained how we can make an AI for any game that loosely resembles chess, even long games with many possible moves that'd be extremely expensive to explore. You can also make AI for games with hidden info and randomness (like card games) with some techniques I'll mention.
 
