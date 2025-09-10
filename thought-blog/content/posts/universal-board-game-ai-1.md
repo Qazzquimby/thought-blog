@@ -5,12 +5,10 @@ author: "qazzquimby"
 type: "rumination"
 ---
 
-# Universal Board Game AI
+# Toward Universal Board Game AI - Chapter 1: Simple Games
+> Wherein the author dumps a great deal of context necessary to understand his upcoming Main Point.
 
 I play against the AI on the Dominion app most days, and it beats me around 80% of the time despite me having played for years. That's fantastic. You get the benefit of a high-level playing group, always available, faster than a human opponent would play. With access to AI like this, a game developer could evaluate game balance and optimal strategies automatically. It also gives me an exciting feeling of technological victory over the world. Achieving that kind of AI is very hard, and I'm going to write about it.
-
-# Chapter 1: Simple Games
-> Wherein the author dumps a great deal of context necessary to understand his upcoming Main Point.
 
 It's a bit rude to call Chess or Go "simple games", but I'll do it anyway because I'm comparing them with things like Magic: The Gathering (~30k cards, absurd interactions).
 
@@ -119,4 +117,4 @@ After they've played for a while, train the machine learning model just like bef
 Get comfortable waiting, because google's superhuman AlphaZero Go player was trained over millions of games spread out across many powerful processors, which I estimate might cost about 200k USD on rented infrastructure.
 
 So that sounds dismal. Yet somehow the Dominion AI, another extraordinarily difficult game to play, was trained in only a couple months on unspecialized home hardware. 
-Next post is all about the Dominion AI and the other ways in which it is incredible.
+[Next post](https://thoughts.toren.dev/blog/universal-board-game-ai-2/) is all about the Dominion AI and the other ways in which it is incredible.
