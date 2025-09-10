@@ -9,7 +9,7 @@ type: "rumination"
 
 `Wherein the author hoots and jibbers excitedly.`
 
-In the first chapter https://thoughts.toren.dev/blog/universal-board-game-ai-1/ I explained how we can make an AI for any game that loosely resembles chess, even long games with many possible moves that'd be extremely expensive to explore. You can also make AI for games with hidden info and randomness (like card games) with some techniques I'll mention.
+In the [first chapter](https://thoughts.toren.dev/blog/universal-board-game-ai-1/) I explained how we can make an AI for any game that loosely resembles chess, even long games with many possible moves that'd be extremely expensive to explore. You can also make AI for games with hidden info and randomness (like card games) with some techniques I'll mention.
 
 This still left an enormous gap between those sorts of games, and modern board games with heaps of components and expansions and cards with unique abilities. Good luck fitting those into the simple fixed size input output model we talked about last chapter. Most modern games skip AI, or make a quite bad AI, so (as far as I know) the Dominion app broke a lot of ground.
 
@@ -99,4 +99,4 @@ Every legal move is scored that way, individual and bespoke for the type of acti
 So ~superhuman AI was made for a game that looked impossible to make an AI for. Dominion definitely isn't the hardest game to solve, but it's up there.
 At the end of Chapter 1 we were able to solve anything that vaguely resembled checkers, all at once with the same techniques.
 So can we now solve basically every game? Could I make it easy to get a powerful AI for any game from just its rules?
-Wow, find out in the next chapter.
+Wow, find out in the next chapter. (Coming later)
