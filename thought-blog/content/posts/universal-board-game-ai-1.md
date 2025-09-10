@@ -5,7 +5,9 @@ author: "qazzquimby"
 type: "rumination"
 ---
 
-# Toward Universal Board Game AI - Chapter 1: Simple Games
+# Toward Universal Board Game AI
+# Chapter 1: Simple Games
+
 > Wherein the author dumps a great deal of context necessary to understand his upcoming Main Point.
 
 I play against the AI on the Dominion app most days, and it beats me around 80% of the time despite me having played for years. That's fantastic. You get the benefit of a high-level playing group, always available, faster than a human opponent would play. With access to AI like this, a game developer could evaluate game balance and optimal strategies automatically. It also gives me an exciting feeling of technological victory over the world. Achieving that kind of AI is very hard, and I'm going to write about it.
