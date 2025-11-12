@@ -1,6 +1,6 @@
 ---
 title: "Universal Board Game AI - Ch. 2: How Dominion got Solved"
-date: 2025-04-18 00:00:00
+date: 2025-09-09 00:00:00
 author: "qazzquimby"
 type: "rumination"
 ---
