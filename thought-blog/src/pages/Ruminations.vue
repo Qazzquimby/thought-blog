@@ -11,7 +11,7 @@
       <div class="terminal-body">
         <div v-for="(edge, index) in filteredPosts" :key="edge.node.id" class="post">
           <div class="post-meta" @click="toggle(index)">
-            <span class="post-date">{{ formatDate(edge.node.date) }}</span> - <span class="">{{ edge.node.title }}</span>
+            <span class="post-date">{{ formatDate(edge.node.date) }}</span> - <span class="post-title">{{ edge.node.title }}</span>
           </div>
           <div v-show="isExpanded(index)">
             <div class="post-content" v-html="edge.node.content"></div>
@@ -76,7 +76,11 @@ export default {
       return this.expanded.includes(index);
     }
   }
-}
+};
+
+const isExpanded = (index) => {
+  return expanded.value.includes(index);
+};
 </script>
 
 <style scoped>
@@ -90,10 +94,15 @@ export default {
   text-decoration: none;
   margin: 0 0.5em;
 }
-.view-toggle a.active {
+.view-toggle a.exact-active {
   text-decoration: underline;
 }
 .post-meta {
   cursor: pointer;
+}
+.post-title {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.1em;
 }
 </style>

@@ -4,8 +4,8 @@
       <div class="terminal-header">
         <span class="terminal-title">~/thoughts</span>
         <div class="view-toggle">
-          <g-link to="/">Thoughts</g-link>
-          <g-link to="/ruminations">Ruminations</g-link>
+          <g-link class="nav__link" to="/">Thoughts</g-link>
+          <g-link class="nav__link" to="/ruminations">Ruminations</g-link>
         </div>
       </div>
       <div class="terminal-body">
@@ -60,19 +60,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.terminal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.view-toggle a {
-  color: inherit;
-  text-decoration: none;
-  margin: 0 0.5em;
-}
-.view-toggle a.active {
-  text-decoration: underline;
-}
-</style>

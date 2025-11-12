@@ -171,6 +171,19 @@ body {
   text-decoration: underline;
 }
 
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.view-toggle a {
+  text-decoration: none;
+  margin: 0 0.5em;
+}
+.view-toggle a.exact-active {
+  text-decoration: underline;
+}
+
 .terminal-divider {
   height: 1px;
   background-color: var(--terminal-divider);
