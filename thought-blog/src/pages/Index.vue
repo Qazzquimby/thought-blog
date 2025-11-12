@@ -3,9 +3,13 @@
     <div class="terminal">
       <div class="terminal-header">
         <span class="terminal-title">~/thoughts</span>
+        <div class="view-toggle">
+          <a href="#" @click.prevent="view = 'thoughts'" :class="{ active: view === 'thoughts' }">Thoughts</a>
+          <a href="#" @click.prevent="view = 'ruminations'" :class="{ active: view === 'ruminations' }">Ruminations</a>
+        </div>
       </div>
       <div class="terminal-body">
-        <div v-for="edge in $page.posts.edges" :key="edge.node.id" class="post">
+        <div v-for="edge in filteredPosts" :key="edge.node.id" class="post">
           <div class="post-meta">
             <span class="post-date">{{ formatDate(edge.node.date) }}</span>
           </div>
@@ -31,6 +35,7 @@ query {
         content
         author
         path
+        type
       }
     }
   }
@@ -42,6 +47,19 @@ export default {
   metaInfo: {
     title: 'Thoughts'
   },
+  data() {
+    return {
+      view: 'thoughts' // 'thoughts' or 'ruminations'
+    };
+  },
+  computed: {
+    filteredPosts() {
+      if (this.view === 'ruminations') {
+        return this.$page.posts.edges.filter(edge => edge.node.type === 'rumination');
+      }
+      return this.$page.posts.edges.filter(edge => edge.node.type !== 'rumination');
+    }
+  },
   methods: {
     formatDate(date) {
       const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -50,3 +68,19 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.view-toggle a {
+  color: inherit;
+  text-decoration: none;
+  margin: 0 0.5em;
+}
+.view-toggle a.active {
+  text-decoration: underline;
+}
+</style>
