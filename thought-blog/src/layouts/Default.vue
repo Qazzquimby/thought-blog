@@ -203,7 +203,7 @@ body {
   text-decoration: none;
   margin: 0 0.5em;
 }
-.view-toggle a.active {
+.view-toggle a.active--exact {
   text-decoration: underline;
 }
 
